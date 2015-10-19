@@ -5,15 +5,15 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
-	private const int PAIR_COUNT = 4;
+	[SerializeField] private Transform[] _cardParent; //index:0 easy, 1 normal, 2 hard
+	[SerializeField] private GameObject GameOverPanel;
+
+
+	private const int PAIR_COUNT_EASY = 6;
+	private const int PAIR_COUNT_NORMAL = 10;
+	private const int PAIR_COUNT_HARD = 15;
 
 	private List<GameObject> m_clickedCard = new List<GameObject>();
-
-	[SerializeField]
-	private Transform CardParent;
-
-	[SerializeField]
-	private GameObject GameOverPanel;
 
 	private bool _timerStart = false;
 	private float _time = 0f;
@@ -29,38 +29,64 @@ public class GameManager : MonoBehaviour
 	
 		if (_timerStart) {
 			_time += Time.deltaTime;
-			Debug.Log (_time);
+//			Debug.Log (_time);
 		}
 	}
 
 	private void init (){
 
-		// カードのGameObjectを取得
-		List<GameObject> cardObjs = new List<GameObject> ();
+		userDataManager.level = userDataManager.LEVEL.HARD; //Test
 
-		for (int i = 0; i < CardParent.childCount; ++i) {
+		// 難易度を取得
+		int pairCount = 0;
+		switch (userDataManager.level) {
 
-			cardObjs.Add (CardParent.GetChild(i).gameObject);
+		case userDataManager.LEVEL.EASY:
+
+			pairCount = PAIR_COUNT_EASY;
+			break;
+		case userDataManager.LEVEL.NORMAL:
+
+			pairCount = PAIR_COUNT_NORMAL;
+			break;
+		case userDataManager.LEVEL.HARD:
+
+			pairCount = PAIR_COUNT_HARD;
+			break;
 		}
 
+		// カードのGameObjectを取得
+		List<GameObject> cardObjs = new List<GameObject> ();
+		int index = (int)userDataManager.level;
+		for (int i = 0; i < _cardParent[index].childCount; ++i) {
+
+			cardObjs.Add (_cardParent[index].GetChild(i).gameObject);
+		}
+
+		Debug.Log ("Level::" + userDataManager.level);
+		Debug.Log ("pairCount::" + pairCount);
+		Debug.Log (cardObjs.Count);
+
 		// ペーアの形でカードをレイアウト
-		for (int i = 0; i < 6; ++i) {
+		for (int i = 0; i < pairCount; ++i) {
 
 			int number = UnityEngine.Random.Range (1, 14);
 			int kind = UnityEngine.Random.Range (0, 4);
 
-			int index = UnityEngine.Random.Range (0, cardObjs.Count);
+			int cardIndex = UnityEngine.Random.Range (0, cardObjs.Count);
 
-			cardObjs [index].GetComponent<Card> ().setCard (number, kind);
-			cardObjs [index].GetComponent<Card> ().turnCardToBack();
-			cardObjs.RemoveAt (index);
+			cardObjs [cardIndex].GetComponent<Card> ().setCard (number, kind);
+			cardObjs [cardIndex].GetComponent<Card> ().turnCardToBack();
+			cardObjs.RemoveAt (cardIndex);
 
-			index = UnityEngine.Random.Range (0, cardObjs.Count);
-			cardObjs [index].GetComponent<Card> ().setCard (number, kind);
-			cardObjs [index].GetComponent<Card> ().setCard (number, kind);
-			cardObjs [index].GetComponent<Card> ().turnCardToBack();
-			cardObjs.RemoveAt (index);
+			cardIndex = UnityEngine.Random.Range (0, cardObjs.Count);
+			cardObjs [cardIndex].GetComponent<Card> ().setCard (number, kind);
+			cardObjs [cardIndex].GetComponent<Card> ().setCard (number, kind);
+			cardObjs [cardIndex].GetComponent<Card> ().turnCardToBack();
+			cardObjs.RemoveAt (cardIndex);
 		}
+
+		_cardParent [index].gameObject.SetActive (true);
 	}
 
 	public void ClickCard (string index){
@@ -72,7 +98,8 @@ public class GameManager : MonoBehaviour
 
 		if (m_clickedCard.Count < 2) {
 
-			GameObject obj = GameObject.Find ("Canvas/Cards/" + index);
+			int parenIndex = (int)userDataManager.level;
+			GameObject obj = GameObject.Find ("Canvas/" + _cardParent[parenIndex].name + "/" + index);
 			obj.GetComponent<Card> ().turnCardToFront ();
 			m_clickedCard.Add (obj);
 
@@ -102,7 +129,8 @@ public class GameManager : MonoBehaviour
 
 	private bool isWin(){
 
-		foreach (Transform t in CardParent) {
+		int index = (int)userDataManager.level;
+		foreach (Transform t in _cardParent[index]) {
 
 			if (m_clickedCard.Count > 0) {
 				return false;

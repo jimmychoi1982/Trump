@@ -9,5 +9,11 @@ public class userDataManager{
 	public static string userName;
 	public static int time;
 
-	public static Dictionary <string, int> rankingList;
+	public enum LEVEL{
+		EASY,
+		NORMAL,
+		HARD
+	}
+
+	public static LEVEL level { get; set;}
 }
