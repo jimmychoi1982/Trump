@@ -364,4 +364,13 @@ public class KiiManagerMulti : MonoBehaviour
 			}
 		});
 	}
+
+	/// <summary>
+	/// Levels the select button (For debug)
+	/// </summary>
+	/// <param name="level">Level.</param>
+	public void LevelSelectButton(int level){
+
+		userDataManager.level = (userDataManager.LEVEL)level;
+	}
 }

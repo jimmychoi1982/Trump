@@ -10,6 +10,6 @@ public class Node : MonoBehaviour {
 	public void setNode (string userName, int time){
 
 		_userNameText.text = userName;
-		_timeText.text = time.ToString();
+		_timeText.text = time.ToString() + "ms";
 	}
 }

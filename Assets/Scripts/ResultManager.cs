@@ -72,7 +72,7 @@ public class ResultManager : MonoBehaviour
 
 		KiiQuery allQuery = new KiiQuery ();
 
-		allQuery.SortByDesc ("time"); //按指定字段降序排列。
+		allQuery.SortByAsc ("time"); //按指定字段降序排列。
 		allQuery.Limit = 10;
 
 		string userName = "";
