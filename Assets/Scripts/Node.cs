@@ -4,12 +4,12 @@ using System.Collections;
 
 public class Node : MonoBehaviour {
 
-	[SerializeField] private Text _userIDText;
+	[SerializeField] private Text _userNameText;
 	[SerializeField] private Text _timeText;
 
-	public void setNode (string userID, int time){
+	public void setNode (string userName, int time){
 
-		_userIDText.text = userID;
+		_userNameText.text = userName;
 		_timeText.text = time.ToString();
 	}
 }

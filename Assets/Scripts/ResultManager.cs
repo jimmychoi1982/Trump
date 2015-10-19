@@ -26,10 +26,10 @@ public class ResultManager : MonoBehaviour
 	
 	}
 
-	public void SetScollView (string userID, int time)
+	public void SetScollView (string userName, int time)
 	{
 		GameObject nodeObj = Instantiate (_nodeObj) as GameObject;
-		nodeObj.GetComponent <Node> ().setNode (userID, time);
+		nodeObj.GetComponent <Node> ().setNode (userName, time);
 		nodeObj.transform.SetParent (_contentTran);
 		nodeObj.transform.localScale = new Vector3 (1, 1, 1);
 	}
@@ -95,10 +95,10 @@ public class ResultManager : MonoBehaviour
 
 		KiiQuery allQuery = new KiiQuery ();
 
-		allQuery.SortByDesc ("userID"); //按指定字段降序排列。
+		allQuery.SortByDesc ("time"); //按指定字段降序排列。
 		allQuery.Limit = 10;
 
-		string userID = "";
+		string userName = "";
 		int time = 0;
 
 		Kii.Bucket ("Ranking").Query (allQuery, (KiiQueryResult<KiiObject> result, Exception ex) => {
@@ -110,10 +110,10 @@ public class ResultManager : MonoBehaviour
 				
 			foreach (KiiObject obj in result){
 
-				userID = obj["userID"].ToString();
+				userName = obj["userName"].ToString();
 				time = (int)obj["time"];
 
-				SetScollView (userID, time);
+				SetScollView (userName, time);
 //				Uri uri = obj.Uri;
 //				KiiObject obj2 = KiiObject.CreateByUri(uri);
 //				obj2.Refresh ((KiiObject refreshedObj, Exception ex2) => {

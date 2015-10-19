@@ -24,7 +24,7 @@ public class KiiManagerMulti : MonoBehaviour
 
 	void Start ()
 	{
-		DontDestroyOnLoad (gameObject);
+//		DontDestroyOnLoad (gameObject);
 
 		string kiiUserID = "";
 		string kiiPassword = "";
