@@ -1,0 +1,13 @@
+*.pidb
+*.suo
+*.userprefs
+*.vsmdi
+*.testsettings
+*/bin
+*/obj
+*/publish
+$tf
+TestResults
+!*.sln
+!*.csproj
+!*/*.csproj
