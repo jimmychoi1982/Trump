@@ -11,14 +11,16 @@ public class KiiManagerMulti : MonoBehaviour
 {
 	[SerializeField] private GameObject _registerPanelObj;
 	[SerializeField] private Text _infomationText;
-	[SerializeField] private Text _userIDText;
-//	[SerializeField] private Text _userPasswordText;
-	[SerializeField] private Text _timeText;
+	[SerializeField] private Text _userNameText;
 	[SerializeField] private GameObject _loadingPanelObj;
+
+	[SerializeField] private InputField _userNameInputField;
+	[SerializeField] private Transform _inputPanelTransform;
+
 
 	private string _userName; //TODO
 	private bool _isNewUser = false;
-	private bool _loading = false;
+//	private bool _loading = false;
 
 	void Start ()
 	{
@@ -33,9 +35,6 @@ public class KiiManagerMulti : MonoBehaviour
 			kiiUserID = PlayerPrefs.GetString ("UserID");
 			kiiPassword = PlayerPrefs.GetString ("UserPW");
 
-			_userIDText.text = kiiUserID;
-//			_userPasswordText.text = kiiPassword;
-
 			Debug.Log ("Loading");
 			_loadingPanelObj.SetActive (true);
 			LoginUser (kiiUserID, kiiPassword);
@@ -43,11 +42,6 @@ public class KiiManagerMulti : MonoBehaviour
 
 			kiiUserID = RandomCodeGenerate (10);
 			kiiPassword = RandomCodeGenerate (6);
-
-//			StartCoroutine(RegistUser (_kiiUserID, _kiiPassword));
-//			StartCoroutine(loginUser (_kiiUserID, _kiiPassword));
-//			StartCoroutine(kiiDataInitialize ());
-//			StartCoroutine(loadKiiData ());
 
 			_isNewUser = true;
 			Debug.Log ("Loading");
@@ -110,11 +104,6 @@ public class KiiManagerMulti : MonoBehaviour
 
 				Debug.Log ("Success userName RegistUser : " + userID);
 
-				PlayerPrefs.SetString ("UserID", userID);
-				PlayerPrefs.SetString ("UserPW", userPassword);
-
-				_userIDText.text = userID;
-
 				LoginUser (userID, userPassword);
 			}
 		});
@@ -136,7 +125,8 @@ public class KiiManagerMulti : MonoBehaviour
 			}
 		
 			Debug.Log ("Login Complete UserID:" + userID + ":" + userPassword);
-			kiiDataInitialize ();
+
+			kiiDataInitialize (userID, userPassword);
 		});
 	}
 
@@ -144,7 +134,7 @@ public class KiiManagerMulti : MonoBehaviour
 	/// Kiiデータ初期化 廃棄予定
 	/// </summary>
 	/// <returns><c>true</c>, if data initialize was kiied, <c>false</c> otherwise.</returns>
-	public void kiiDataInitialize ()
+	public void kiiDataInitialize (string userID, string userPassword)
 	{
 		if (_isNewUser) {
 			// ユーザーのパケットを定義
@@ -153,16 +143,24 @@ public class KiiManagerMulti : MonoBehaviour
 
 			// 保存データ定義
 			basicDataObj ["time"] = 0;
+			basicDataObj ["userName"] = "";
+
+			basicDataObj ["userID"] = userID;
+			basicDataObj ["userPW"] = userPassword;
+
 
 			basicDataObj.Save ((KiiObject obj, Exception ex) => {
 
 				if (ex != null) {
 					// TODO Error処理
+					Debug.Log ("Connect Error");
 				}
 
 				Debug.Log ("Kii data initialize completed");
 
-				initializeApplicationScope ();
+				// Wait for user name comfirm : ConfirmUserName()
+				_loadingPanelObj.SetActive (false);
+				_inputPanelTransform.gameObject.SetActive (true);
 			});
 		} else {
 
@@ -197,11 +195,21 @@ public class KiiManagerMulti : MonoBehaviour
 			foreach (KiiObject obj in result) {
 
 				userDataManager.time = (int)obj ["time"];
+				userDataManager.userName = (string)obj ["userName"];
+				userDataManager.userID = (string)obj ["userID"];
+				userDataManager.userPW = (string)obj ["userPW"];
+
 				Debug.Log ("Load Kii data has completed");
 			}
-
-			_timeText.text = userDataManager.time.ToString ();
+				
+			_userNameText.text = userDataManager.userName;
 			_loadingPanelObj.SetActive (false);
+
+			PlayerPrefs.SetString ("UserID", userDataManager.userID);
+			PlayerPrefs.SetString ("UserPW", userDataManager.userPW);
+
+			_isNewUser = false;
+
 			Debug.Log ("Load complete!");
 		});
 	}
@@ -258,17 +266,14 @@ public class KiiManagerMulti : MonoBehaviour
 					Debug.Log ("Save Application Scope is complete::" + userID + ":: " + userDataManager.time);
 				}
 			}
-
-//			ShowUserRank();
 		});
 	}
 
 	private void initializeApplicationScope(){
-
-		string userID = PlayerPrefs.GetString ("UserID");
+	
 		KiiObject obj = Kii.Bucket ("Ranking").NewKiiObject ();
 
-		obj ["userID"] = userID;
+		obj ["userName"] = _userName;
 		obj ["time"] = 0;
 
 		obj.Save ((KiiObject savedObj, Exception ex) => {
@@ -290,31 +295,73 @@ public class KiiManagerMulti : MonoBehaviour
 		PlayerPrefs.DeleteAll ();
 	}
 
-	public void ShowUserRank(){
-	
+//	public void ShowUserRank(){
+//	
+//		KiiQuery allQuery = new KiiQuery ();
+//		allQuery.SortByDesc ("userID"); //按指定字段降序排列。
+//
+//		string userID = "";
+//		int time = 0;
+//
+//		Kii.Bucket ("Ranking").Query (allQuery, (KiiQueryResult<KiiObject> result, Exception ex) => {
+//
+//			if (ex != null){
+//				Debug.Log ("Connect error");
+//			}
+//
+//			foreach (KiiObject obj in result){
+//
+//				userID = obj["userID"].ToString();
+//				time = (int)obj["time"];
+//
+//				Debug.Log (obj["userID"].ToString() + ":: " + (int)obj["time"]);
+//
+////				GameObject.Find ("ResultManager").GetComponent <ResultManager>().SetScollView(userID, time);
+//			}
+//
+//			Debug.Log ("Show complete");
+//		});
+//	}
+
+	/// <summary>
+	/// Sets the name of the user.
+	/// </summary>
+	public void SetUserName(){
+		_userName = _userNameInputField.text;
+	}
+
+	/// <summary>
+	/// Confirms the name of the user.
+	/// </summary>
+	public void ConfirmUserName(){
+
+		_loadingPanelObj.SetActive (true);
+
+		KiiBucket userBucket = KiiUser.CurrentUser.Bucket ("myBasicData");
 		KiiQuery allQuery = new KiiQuery ();
-		allQuery.SortByDesc ("userID"); //按指定字段降序排列。
 
-		string userID = "";
-		int time = 0;
-
-		Kii.Bucket ("Ranking").Query (allQuery, (KiiQueryResult<KiiObject> result, Exception ex) => {
+		userBucket.Query (allQuery, (KiiQueryResult<KiiObject> result, Exception ex) => {
 
 			if (ex != null){
 				Debug.Log ("Connect error");
+				return;
 			}
 
+			Debug.Log (_userName);
 			foreach (KiiObject obj in result){
+				obj ["userName"] = _userName;
 
-				userID = obj["userID"].ToString();
-				time = (int)obj["time"];
+				obj.Save((KiiObject savedObj, Exception ex2) => {
 
-				Debug.Log (obj["userID"].ToString() + ":: " + (int)obj["time"]);
+					if (ex != null){
+						Debug.Log ("Connect error");
+						return;
+					}
 
-//				GameObject.Find ("ResultManager").GetComponent <ResultManager>().SetScollView(userID, time);
+					initializeApplicationScope ();
+					return;
+				});
 			}
-
-			Debug.Log ("Show complete");
 		});
 	}
 }

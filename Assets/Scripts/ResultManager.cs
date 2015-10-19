@@ -9,14 +9,14 @@ public class ResultManager : MonoBehaviour
 	[SerializeField] private GameObject _nodeObj;
 	[SerializeField] private Transform _contentTran;
 
-	List<KiiObject> test;
+//	List<KiiObject> test;
 	// Use this for initialization
 	void Start ()
 	{
 	
 //		GameObject.Find ("KiiInit").GetComponent <KiiManagerMulti> ().ShowUserRank ();
 
-		test = new List<KiiObject> ();
+//		test = new List<KiiObject> ();
 
 		ShowUserRank ();
 	}

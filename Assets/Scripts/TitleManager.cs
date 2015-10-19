@@ -51,7 +51,7 @@ public class TitleManager : MonoBehaviour {
 			yield return new WaitForSeconds (1f);
 		}
 
-		yield return null;
+//		yield return null;
 	}
 
 

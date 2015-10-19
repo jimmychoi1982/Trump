@@ -14,7 +14,7 @@ public class KiiManager : MonoBehaviour
 	private string _kiiUserID;
 	private string _kiiPassword;
 	private string _userName;
-	private bool _isLoading = false;
+//	private bool _isLoading = false;
 	// Use this for initialization
 	void Start ()
 	{
@@ -179,18 +179,18 @@ public class KiiManager : MonoBehaviour
 	public bool loginUser (string userName, string password)
 	{
 
-		KiiUser user;
-
-		try {
-
-			user = KiiUser.LogIn (userName, password);
-			Debug.Log ("Success user login : " + userName);
-		} catch (System.Exception exception) {
-
-			Debug.LogError ("Failed user login : " + userName + " : " + exception);
-			user = null;
-			return false;
-		}
+//		KiiUser user;
+//
+//		try {
+//
+//			user = KiiUser.LogIn (userName, password);
+//			Debug.Log ("Success user login : " + userName);
+//		} catch (System.Exception exception) {
+//
+//			Debug.LogError ("Failed user login : " + userName + " : " + exception);
+//			user = null;
+//			return false;
+//		}
 
 		return true;
 	}
