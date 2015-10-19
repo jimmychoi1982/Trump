@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using KiiCorp.Cloud.Storage;
 
 public class GameManager : MonoBehaviour
 {
@@ -35,7 +37,7 @@ public class GameManager : MonoBehaviour
 
 	private void init (){
 
-		userDataManager.level = userDataManager.LEVEL.HARD; //Test
+		userDataManager.level = userDataManager.LEVEL.EASY; //Test
 
 		// 難易度を取得
 		int pairCount = 0;
@@ -62,10 +64,6 @@ public class GameManager : MonoBehaviour
 
 			cardObjs.Add (_cardParent[index].GetChild(i).gameObject);
 		}
-
-		Debug.Log ("Level::" + userDataManager.level);
-		Debug.Log ("pairCount::" + pairCount);
-		Debug.Log (cardObjs.Count);
 
 		// ペーアの形でカードをレイアウト
 		for (int i = 0; i < pairCount; ++i) {
@@ -151,6 +149,30 @@ public class GameManager : MonoBehaviour
 	public void EndButton(){
 	
 		userDataManager.time = (int)_time;
-		Application.LoadLevel ("ResultScene");
+
+		KiiBucket userBucket = KiiUser.CurrentUser.Bucket ("myBasicData");
+		KiiQuery allQuery = new KiiQuery ();
+
+		userBucket.Query (allQuery, (KiiQueryResult<KiiObject> result, Exception ex) => {
+
+			if (ex != null){
+				Debug.Log ("Connect error");
+				return;
+			}
+
+			foreach (KiiObject obj in result){
+
+				obj ["time"] = userDataManager.time;
+				obj.Save ((KiiObject savedObj, Exception ex2) => {
+
+					if (ex2 != null){
+						Debug.Log ("Connect error");
+						return;
+					}
+						
+					Application.LoadLevel ("ResultScene");
+				});
+			}
+		});
 	}
 }
