@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
 
 	private bool _timerStart = false;
 	private float _time = 0f;
+	private int _currentPairCount;
 
 	// Use this for initialization
 	void Start (){
@@ -37,8 +38,6 @@ public class GameManager : MonoBehaviour
 
 	private void init (){
 
-		userDataManager.level = userDataManager.LEVEL.EASY; //Test
-
 		// 難易度を取得
 		int pairCount = 0;
 		switch (userDataManager.level) {
@@ -56,6 +55,9 @@ public class GameManager : MonoBehaviour
 			pairCount = PAIR_COUNT_HARD;
 			break;
 		}
+			
+		// 現在のPair数初期化
+		_currentPairCount = pairCount;
 
 		// カードのGameObjectを取得
 		List<GameObject> cardObjs = new List<GameObject> ();
@@ -104,12 +106,15 @@ public class GameManager : MonoBehaviour
 			if (m_clickedCard.Count == 2) {
 
 				if (m_clickedCard [0].GetComponent<Card> ().number != m_clickedCard [1].GetComponent<Card> ().number ||
-					m_clickedCard [0].GetComponent<Card> ().kind != m_clickedCard [1].GetComponent<Card> ().kind) {
+				    m_clickedCard [0].GetComponent<Card> ().kind != m_clickedCard [1].GetComponent<Card> ().kind) {
 
 					foreach (var c in m_clickedCard) {
 
 						StartCoroutine (c.GetComponent <Card> ().turnCardToBack (0.5f));
 					}
+				} else {
+
+					_currentPairCount -= _currentPairCount;
 				}
 
 				m_clickedCard.Clear ();
@@ -132,7 +137,9 @@ public class GameManager : MonoBehaviour
 
 			if (m_clickedCard.Count > 0) {
 				return false;
-			}else if (t.GetComponent<Card> ().isBackSide()) {
+			} else if (t.GetComponent<Card> ().isBackSide ()) {
+				return false;
+			} else if (_currentPairCount > 0) {
 				return false;
 			}
 		}
@@ -148,7 +155,7 @@ public class GameManager : MonoBehaviour
 
 	public void EndButton(){
 	
-		userDataManager.time = (int)_time;
+		userDataManager.time = (int)(_time * 1000); //クリア時間がmillisecondsで記録
 
 		KiiBucket userBucket = KiiUser.CurrentUser.Bucket ("myBasicData");
 		KiiQuery allQuery = new KiiQuery ();
