@@ -20,10 +20,10 @@ public class Card : MonoBehaviour{
 	[SerializeField]
 	private Transform parent;
 
-	private int _number;
-	//カード自身の番号
-	private int _kind;
-	//カードのタイプ
+	private int _number; //カード自身の番号
+	private int _kind; //カードのタイプ
+	public bool _isBack;
+
 	public int number {
 		get{ return _number; }
 		set{ _number = value; }
@@ -33,9 +33,11 @@ public class Card : MonoBehaviour{
 		get{ return _kind; }
 		set{ _kind = value; }
 	}
+
 	// Use this for initialization
 	void Start (){
 	
+		_isBack = true;
 	}
 	// Update is called once per frame
 	void Update (){
@@ -80,25 +82,62 @@ public class Card : MonoBehaviour{
 
 	public void turnCardToBack (){
 
+		_isBack = true;
 		image.sprite = backSideSprite;
 		button.enabled = true;
 	}
 
 	public IEnumerator turnCardToBack (float time){
 	
+		_isBack = true;
+
 		yield return new WaitForSeconds (time);
 
-		if (image.sprite != backSideSprite) {
-			image.sprite = backSideSprite;
-			button.enabled = true;
-		}
+		iTween.RotateTo (gameObject, iTween.Hash (
+			"y", 90, 
+			"time", time,
+			"isLocal", true
+		));
+
+		yield return new WaitForSeconds (time);
+
+		image.sprite = backSideSprite;
+		button.enabled = true;
+
+		iTween.RotateTo (gameObject, iTween.Hash (
+			"y", 0, 
+			"time", time,
+			"isLocal", true
+		));
 	}
 
 	public void turnCardToFront(){
-		if (image.sprite == backSideSprite) {
-			image.sprite = getCardImage ((KIND)_kind, _number);
-			button.enabled = false;
-		}
+
+		_isBack = false;
+		image.sprite = getCardImage ((KIND)_kind, _number);
+		button.enabled = false;
+	}
+
+	public IEnumerator turnCardToFront(float time){
+
+		_isBack = false;
+
+		iTween.RotateTo (gameObject, iTween.Hash (
+			"y", 90, 
+			"time", time,
+			"isLocal", true
+		));
+
+		yield return new WaitForSeconds (time);
+
+		image.sprite = getCardImage ((KIND)_kind, _number);
+		button.enabled = false;
+
+		iTween.RotateTo (gameObject, iTween.Hash (
+			"y", 0, 
+			"time", time,
+			"isLocal", true
+		));
 	}
 
 	public void setCard(int number, int kind){
@@ -108,7 +147,7 @@ public class Card : MonoBehaviour{
 	}
 
 	public bool isBackSide(){
-		return image.sprite == backSideSprite;
+		return _isBack;
 	}
 
 	public void upDateCard(){

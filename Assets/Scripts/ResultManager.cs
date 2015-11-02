@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System;
 using System.Collections.Generic;
@@ -9,43 +10,18 @@ public class ResultManager : MonoBehaviour
 	[SerializeField] private GameObject _nodeObj;
 	[SerializeField] private Transform _contentTran;
 
+	[SerializeField] private Text _resultTitleText;
+
 //	List<KiiObject> test;
 	// Use this for initialization
 	void Start ()
 	{
+		KiiManagerMulti.SaveUserScopeData (() => {
 
-		//Update Application Bucket
-		KiiBucket applicationBucket = Kii.Bucket ("Ranking");
-		KiiQuery allQuery = new KiiQuery ();
+			KiiManagerMulti.SaveApplicationScope (() => {
 
-		applicationBucket.Query (allQuery, (KiiQueryResult<KiiObject> result, Exception ex) => {
-
-			if (ex != null){
-
-				Debug.Log ("Connect error");
-				return;
-			}
-
-			foreach (KiiObject obj in result){
-
-				if ((string)obj["userName"] == userDataManager.userName){
-
-					obj ["time"] = userDataManager.time;
-					obj.Save ((KiiObject savedObj, Exception ex2) => {
-
-						if (ex2 != null){
-
-							Debug.Log ("Connect error");
-							return;
-						}
-
-						Debug.Log (userDataManager.userName + "has been updated: time::" + userDataManager.time);
-
-						// Show Ranking popup
-						ShowUserRank ();
-					});
-				}
-			}
+				ShowUserRank();
+			});
 		});
 	}
 
@@ -69,16 +45,39 @@ public class ResultManager : MonoBehaviour
 	}
 
 	public void ShowUserRank(){
+	
+		string clearTimeKind = "";
+
+		switch (userDataManager.level) {
+
+		case userDataManager.LEVEL.EASY:
+
+			clearTimeKind = "easyClearTime";
+			_resultTitleText.text = "Easy";
+			break;
+
+		case userDataManager.LEVEL.NORMAL:
+
+			clearTimeKind = "normalClearTime";
+			_resultTitleText.text = "Normal";
+			break;
+
+		case userDataManager.LEVEL.HARD:
+
+			clearTimeKind = "hardClearTime";
+			_resultTitleText.text = "Hard";
+			break;
+		}
 
 		KiiQuery allQuery = new KiiQuery ();
 
-		allQuery.SortByAsc ("time"); //按指定字段降序排列。
+		allQuery.SortByAsc (clearTimeKind); //按指定字段降序排列。
 		allQuery.Limit = 10;
 
 		string userName = "";
 		int time = 0;
 
-		Kii.Bucket ("Ranking").Query (allQuery, (KiiQueryResult<KiiObject> result, Exception ex) => {
+		Kii.Bucket ("ApplicationData").Query (allQuery, (KiiQueryResult<KiiObject> result, Exception ex) => {
 
 			if (ex != null){
 				Debug.Log ("Connect error:: " + ex);
@@ -86,17 +85,20 @@ public class ResultManager : MonoBehaviour
 			}
 				
 			foreach (KiiObject obj in result){
+			
+				if ((int)obj[clearTimeKind] > 0){
 
-				userName = obj["userName"].ToString();
-				time = (int)obj["time"];
+					userName = obj["userName"].ToString();
+					time = (int)obj[clearTimeKind];
 
-				SetScollView (userName, time);
+					SetScollView (userName, time);
+				}
 			}
 		});
 	}
 
 	public void BackToTitleButton(){
 
-		Application.LoadLevel ("TItleScene_Multi");
+		Application.LoadLevel ("HomeScene");
 	}
 }

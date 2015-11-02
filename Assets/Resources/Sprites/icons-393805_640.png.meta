@@ -1,0 +1,122 @@
+fileFormatVersion: 2
+guid: 33d5bb99bb32c4341b8a0053fbae76c4
+timeCreated: 1446168234
+licenseType: Free
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: icons-393805_640_0
+    21300002: icons-393805_640_1
+    21300004: icons-393805_640_2
+    21300006: icons-393805_640_3
+    21300008: icons-393805_640_4
+    21300010: icons-393805_640_5
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: .25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  cubemapConvolution: 0
+  cubemapConvolutionSteps: 8
+  cubemapConvolutionExponent: 1.5
+  seamlessCubemap: 0
+  textureFormat: -3
+  maxTextureSize: 2048
+  textureSettings:
+    filterMode: -1
+    aniso: 16
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  rGBM: 0
+  compressionQuality: 50
+  allowsAlphaSplitting: 0
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: .5, y: .5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 50
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: icons-393805_640_0
+      rect:
+        serializedVersion: 2
+        x: 70
+        y: 332
+        width: 77
+        height: 63
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: icons-393805_640_1
+      rect:
+        serializedVersion: 2
+        x: 156
+        y: 236
+        width: 80
+        height: 82
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: icons-393805_640_2
+      rect:
+        serializedVersion: 2
+        x: 77
+        y: 0
+        width: 70
+        height: 67
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: icons-393805_640_3
+      rect:
+        serializedVersion: 2
+        x: 577
+        y: 329
+        width: 63
+        height: 73
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: icons-393805_640_4
+      rect:
+        serializedVersion: 2
+        x: 586
+        y: 254
+        width: 54
+        height: 55
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: icons-393805_640_5
+      rect:
+        serializedVersion: 2
+        x: 236
+        y: 236
+        width: 80
+        height: 82
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+  spritePackingTag: 
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

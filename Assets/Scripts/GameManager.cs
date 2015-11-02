@@ -1,14 +1,15 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using KiiCorp.Cloud.Storage;
 
 public class GameManager : MonoBehaviour
 {
-	[SerializeField] private Transform[] _cardParent; //index:0 easy, 1 normal, 2 hard
-	[SerializeField] private GameObject GameOverPanel;
+	[SerializeField] private Transform[] _cardParentTran; //index:0 easy, 1 normal, 2 hard
+	[SerializeField] private GameOverPanel _gameOverPanel;
 
 
 	private const int PAIR_COUNT_EASY = 6;
@@ -19,12 +20,11 @@ public class GameManager : MonoBehaviour
 
 	private bool _timerStart = false;
 	private float _time = 0f;
-	private int _currentPairCount;
 
 	// Use this for initialization
 	void Start (){
 
-		GameOverPanel.SetActive (false);
+		_gameOverPanel.gameObject.SetActive (false);
 		init (); //カードを初期化
 	}
 	// Update is called once per frame
@@ -37,8 +37,34 @@ public class GameManager : MonoBehaviour
 	}
 
 	private void init (){
+	
+		Debug.Log ("Init game");
 
-		// 難易度を取得
+		string[] layoutCardList = getLayoutCards ();
+
+		int level = (int)userDataManager.level;
+
+		for (int i = 0; i < _cardParentTran [level].childCount; ++i) {
+
+			int kind = int.Parse (layoutCardList [i].Split ('_') [0]);
+			int number = int.Parse (layoutCardList [i].Split ('_') [1]);
+
+			_cardParentTran [level].GetChild (i).GetComponent <Card> ().setCard (number, kind);
+
+			_cardParentTran [level].GetChild (i).GetComponent <Card> ().turnCardToBack ();
+		}
+
+		_cardParentTran [level].gameObject.SetActive (true);
+		_timerStart = true;
+	}
+
+
+	/// <summary>
+	/// Gets the layout cards dictionary
+	/// </summary>
+	/// <returns>The layout cards.</returns>
+	private string[] getLayoutCards(){
+
 		int pairCount = 0;
 		switch (userDataManager.level) {
 
@@ -55,38 +81,21 @@ public class GameManager : MonoBehaviour
 			pairCount = PAIR_COUNT_HARD;
 			break;
 		}
-			
-		// 現在のPair数初期化
-		_currentPairCount = pairCount;
 
-		// カードのGameObjectを取得
-		List<GameObject> cardObjs = new List<GameObject> ();
-		int index = (int)userDataManager.level;
-		for (int i = 0; i < _cardParent[index].childCount; ++i) {
+		List<string> cardTempList = new List<string> ();
 
-			cardObjs.Add (_cardParent[index].GetChild(i).gameObject);
-		}
-
-		// ペーアの形でカードをレイアウト
 		for (int i = 0; i < pairCount; ++i) {
 
 			int number = UnityEngine.Random.Range (1, 14);
 			int kind = UnityEngine.Random.Range (0, 4);
 
-			int cardIndex = UnityEngine.Random.Range (0, cardObjs.Count);
-
-			cardObjs [cardIndex].GetComponent<Card> ().setCard (number, kind);
-			cardObjs [cardIndex].GetComponent<Card> ().turnCardToBack();
-			cardObjs.RemoveAt (cardIndex);
-
-			cardIndex = UnityEngine.Random.Range (0, cardObjs.Count);
-			cardObjs [cardIndex].GetComponent<Card> ().setCard (number, kind);
-			cardObjs [cardIndex].GetComponent<Card> ().setCard (number, kind);
-			cardObjs [cardIndex].GetComponent<Card> ().turnCardToBack();
-			cardObjs.RemoveAt (cardIndex);
+			cardTempList.Add (string.Format("{0}_{1}", kind, number));
+			cardTempList.Add (string.Format("{0}_{1}", kind, number));
 		}
 
-		_cardParent [index].gameObject.SetActive (true);
+		string[] cardList = cardTempList.OrderBy (i => Guid.NewGuid ()).ToArray ();
+
+		return cardList;
 	}
 
 	public void ClickCard (string index){
@@ -99,7 +108,7 @@ public class GameManager : MonoBehaviour
 		if (m_clickedCard.Count < 2) {
 
 			int parenIndex = (int)userDataManager.level;
-			GameObject obj = GameObject.Find ("Canvas/" + _cardParent[parenIndex].name + "/" + index);
+			GameObject obj = GameObject.Find ("Canvas/" + _cardParentTran[parenIndex].name + "/" + index);
 			obj.GetComponent<Card> ().turnCardToFront ();
 			m_clickedCard.Add (obj);
 
@@ -112,18 +121,16 @@ public class GameManager : MonoBehaviour
 
 						StartCoroutine (c.GetComponent <Card> ().turnCardToBack (0.5f));
 					}
-				} else {
-
-					_currentPairCount -= _currentPairCount;
 				}
 
 				m_clickedCard.Clear ();
 
 				if (isWin ()) {
-					GameOverPanel.SetActive (true);
-					GameOverPanel.GetComponent <GameOverPanel> ().SetInformationText (
-						"Your Clear Time is: " + string.Format("{0:00.00}s", _time)
+					_gameOverPanel.gameObject.SetActive (true);
+					_gameOverPanel.SetPopup (
+						"Your Clear Time is: " + string.Format("{0:00.00}s", _time), true
 					);
+					_gameOverPanel.StartAnimation ();
 					_timerStart = false;
 				}
 			}
@@ -133,15 +140,13 @@ public class GameManager : MonoBehaviour
 	private bool isWin(){
 
 		int index = (int)userDataManager.level;
-		foreach (Transform t in _cardParent[index]) {
+		foreach (Transform t in _cardParentTran[index]) {
 
 			if (m_clickedCard.Count > 0) {
 				return false;
 			} else if (t.GetComponent<Card> ().isBackSide ()) {
 				return false;
-			} else if (_currentPairCount > 0) {
-				return false;
-			}
+			} 
 		}
 
 		return true;
@@ -150,13 +155,39 @@ public class GameManager : MonoBehaviour
 	public void ResetButton(){
 
 		init ();
-		GameOverPanel.SetActive (false);
+		_gameOverPanel.gameObject.SetActive (false);
 	}
 
 	public void EndButton(){
 	
-		userDataManager.time = (int)(_time * 1000); //クリア時間がmillisecondsで記録
+		Debug.Log (userDataManager.level + "is over clear time is : " + _time);
 
+		switch (userDataManager.level) {
+
+		case userDataManager.LEVEL.EASY:
+
+			userDataManager.easyClearTime = (int)(_time * 1000); //クリア時間がmillisecondsで記録
+			break;
+
+		case userDataManager.LEVEL.NORMAL:
+
+			userDataManager.normalClearTime = (int)(_time * 1000); //クリア時間がmillisecondsで記録
+			break;
+
+		case userDataManager.LEVEL.HARD:
+
+			userDataManager.hardClearTime = (int)(_time * 1000); //クリア時間がmillisecondsで記録
+			break;
+		}
+
+		KiiManagerMulti.SaveUserScopeData (() => {
+
+			KiiManagerMulti.SaveApplicationScope (() => {
+
+				Application.LoadLevel ("ResultScene");
+			});
+		});
+		/**
 		KiiBucket userBucket = KiiUser.CurrentUser.Bucket ("myBasicData");
 		KiiQuery allQuery = new KiiQuery ();
 
@@ -169,7 +200,7 @@ public class GameManager : MonoBehaviour
 
 			foreach (KiiObject obj in result){
 
-				obj ["time"] = userDataManager.time;
+				obj [clearTimeKind] = userDataManager.easyClearTime;
 				obj.Save ((KiiObject savedObj, Exception ex2) => {
 
 					if (ex2 != null){
@@ -181,5 +212,6 @@ public class GameManager : MonoBehaviour
 				});
 			}
 		});
+		**/
 	}
 }

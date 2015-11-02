@@ -58,7 +58,7 @@ public class TitleManager : MonoBehaviour {
 
 	public void StartButton(){
 	
-		Application.LoadLevel ("GameScene");
+		Application.LoadLevel ("HomeScene");
 	}
 
 }

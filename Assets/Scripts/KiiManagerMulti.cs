@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using System.Linq;
 using JsonOrg;
 using KiiCorp.Cloud.Storage;
 using UnityEngine.UI;
@@ -17,10 +18,14 @@ public class KiiManagerMulti : MonoBehaviour
 	[SerializeField] private InputField _userNameInputField;
 	[SerializeField] private Transform _inputPanelTransform;
 
-
 	private string _userName; //TODO
 	private bool _isNewUser = false;
+
+	private const int DEFAULT_ICON_INDEX = 1;
+
 //	private bool _loading = false;
+
+	public delegate void CallBack(); //通信後のCall Back
 
 	void Start ()
 	{
@@ -142,11 +147,19 @@ public class KiiManagerMulti : MonoBehaviour
 			KiiObject basicDataObj = userBucket.NewKiiObject ();
 
 			// 保存データ定義
-			basicDataObj ["time"] = 0;
-			basicDataObj ["userName"] = "";
+			basicDataObj ["easyClearTime"] = -1;
+			basicDataObj ["normalClearTime"] = -1;
+			basicDataObj ["hardClearTime"] = -1;
 
+			basicDataObj ["winTime"] = 0;
+			basicDataObj ["loseTime"] = 0;
+
+			basicDataObj ["greet"] = "よろしく~~";
+
+			basicDataObj ["userName"] = "";
 			basicDataObj ["userID"] = userID;
 			basicDataObj ["userPW"] = userPassword;
+			basicDataObj ["iconIndex"] = DEFAULT_ICON_INDEX;
 
 
 			basicDataObj.Save ((KiiObject obj, Exception ex) => {
@@ -194,10 +207,19 @@ public class KiiManagerMulti : MonoBehaviour
 
 			foreach (KiiObject obj in result) {
 
-				userDataManager.time = (int)obj ["time"];
+				userDataManager.easyClearTime = (int)obj ["easyClearTime"];
+				userDataManager.normalClearTime = (int)obj ["normalClearTime"];
+				userDataManager.hardClearTime = (int)obj ["hardClearTime"];
+
+				userDataManager.winTime = (int)obj ["winTime"];
+				userDataManager.loseTime = (int)obj ["loseTime"];
+
 				userDataManager.userName = (string)obj ["userName"];
 				userDataManager.userID = (string)obj ["userID"];
 				userDataManager.userPW = (string)obj ["userPW"];
+				userDataManager.IconIndex = (int)obj ["iconIndex"];
+
+				userDataManager.greet = (string)obj ["greet"];
 
 				Debug.Log ("Load Kii data has completed");
 			}
@@ -215,10 +237,10 @@ public class KiiManagerMulti : MonoBehaviour
 	}
 
 	/// <summary>
-	/// 現在のデータを保存
+	/// Saves the user scope data.
+	/// 今のどころ、全部一括で保存する、次のバージョンが別処理にする
 	/// </summary>
-	/// <returns><c>true</c>, if kii data was saved, <c>false</c> otherwise.</returns>
-	public void SaveUserScopeData ()
+	public static void SaveUserScopeData (CallBack callBack)
 	{
 
 		// Kii的搜索功能
@@ -232,49 +254,93 @@ public class KiiManagerMulti : MonoBehaviour
 			}
 
 			foreach (KiiObject obj in result) {
+			
+				obj ["userName"] = userDataManager.userName;
+				obj ["easyClearTime"] = userDataManager.easyClearTime;
+				obj ["normalClearTime"] = userDataManager.normalClearTime;
+				obj ["hardClearTime"] = userDataManager.hardClearTime;
 
-				obj ["time"] = userDataManager.time;
+				obj ["winTime"] = userDataManager.winTime;
+				obj ["loseTime"] = userDataManager.loseTime;
+				obj ["iconIndex"] = userDataManager.IconIndex;
+				obj ["greet"] = userDataManager.greet;
+				obj ["percentage"] = userDataManager.percentage;
+
 				obj.Save ((KiiObject saveObj, Exception e) => {
 
 					if (e != null){
 
+						Debug.Log ("Connect error!");
 						return;
 					}
 
 					Debug.Log ("Save completed");
+					callBack();
 				});
 			}
 		});
 	}
 
-	public void SaveApplicationScope(){
 
+	/// <summary>
+	/// Saves the application scope.
+	/// 今のどころ、全部一括で保存する、次のバージョンが別処理にする
+	/// </summary>
+	public static void SaveApplicationScope(CallBack callBack){
+
+		KiiBucket applicationBucket = Kii.Bucket ("ApplicationData");
 		KiiQuery allQuery = new KiiQuery ();
 
-		string userID = PlayerPrefs.GetString ("UserID");
-
-		Kii.Bucket ("Ranking").Query (allQuery, (KiiQueryResult<KiiObject> result, Exception ex) => {
+		applicationBucket.Query (allQuery, (KiiQueryResult<KiiObject> result, Exception ex) => {
 
 			if (ex != null){
 				Debug.Log ("Connect error");
 			}
 				
 			foreach (KiiObject obj in result){
-				if (obj["userID"].ToString() == userID){
-					obj["time"] = userDataManager.time;
+				if ((string)obj["userName"] == userDataManager.userName){
+					obj ["userName"] = userDataManager.userName;
+					obj ["easyClearTime"] = userDataManager.easyClearTime;
+					obj ["normalClearTime"] = userDataManager.normalClearTime;
+					obj ["hardClearTime"] = userDataManager.hardClearTime;
+					obj ["iconIndex"] = userDataManager.IconIndex;
+					obj ["percentage"] = userDataManager.percentage;
 
-					Debug.Log ("Save Application Scope is complete::" + userID + ":: " + userDataManager.time);
+					obj.Save ((KiiObject savedObject, Exception ex2) => {
+
+						if (ex2 != null){
+
+							Debug.Log ("Connect error!");
+						}
+						Debug.Log (userDataManager.userName + "has been updated");
+					});
 				}
 			}
+
+			Debug.Log ("Application Scope has saved!");
+			callBack();
 		});
 	}
 
+
+	/// <summary>
+	/// Initializes the application scope.
+	/// </summary>
 	private void initializeApplicationScope(){
 	
-		KiiObject obj = Kii.Bucket ("Ranking").NewKiiObject ();
+		KiiObject obj = Kii.Bucket ("ApplicationData").NewKiiObject ();
 
 		obj ["userName"] = _userName;
-		obj ["time"] = 0;
+		obj ["easyClearTime"] = -1;
+		obj ["normalClearTime"] = -1;
+		obj ["hardClearTime"] = -1;
+
+		obj ["winTime"] = 0;
+		obj ["loseTime"] = 0;
+
+		obj ["iconIndex"] = DEFAULT_ICON_INDEX;
+		obj ["percentage"] = 0;
+
 
 		obj.Save ((KiiObject savedObj, Exception ex) => {
 			if (ex != null){
@@ -293,6 +359,7 @@ public class KiiManagerMulti : MonoBehaviour
 	{
 
 		PlayerPrefs.DeleteAll ();
+		Application.LoadLevel ("TItleScene_Multi");
 	}
 
 //	public void ShowUserRank(){
