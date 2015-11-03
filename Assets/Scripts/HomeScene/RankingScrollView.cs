@@ -42,7 +42,7 @@ public class RankingScrollView : MonoBehaviour {
 		KiiQuery allQuery = new KiiQuery ();
 
 		allQuery.SortByAsc (sortByKey); //按指定字段降序排列。
-		allQuery.Limit = 10;
+//		allQuery.Limit = 10;
 
 		string userName = "";
 		int time = 0;
