@@ -33,10 +33,10 @@ public class VolumeSlider : MonoBehaviour {
 
 		if (_bgmbool) {                             // 現在のボリューム値を取得
 			_bgmvolumefloat = _sliderSlider.value;
-			Debug.Log ("BGM" + _bgmvolumefloat);
+//			Debug.Log ("BGM" + _bgmvolumefloat);
 		} else {
 			_sevolumefloat = _sliderSlider.value;
-			Debug.Log ("SE" + _sevolumefloat);
+//			Debug.Log ("SE" + _sevolumefloat);
 		}
 	}
 
@@ -45,10 +45,10 @@ public class VolumeSlider : MonoBehaviour {
 
 		if (_bgmbool) {
 			PlayerPrefs.SetFloat (VOLUMEBGM, _bgmvolumefloat);
-			Debug.Log (_bgmvolumefloat);
+//			Debug.Log (_bgmvolumefloat);
 		} else {
 			PlayerPrefs.SetFloat (VOLUMESE, _sevolumefloat);
-			Debug.Log (_sevolumefloat);
+//			Debug.Log (_sevolumefloat);
 		}
 	}
 }
