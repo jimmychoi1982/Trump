@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class ProfileManager : MonoBehaviour {
+public class SettingSceneManager: MonoBehaviour {
 
 	[SerializeField] private InputField _nameInputField;
 	[SerializeField] private InputField _greetInputField;
@@ -47,11 +47,12 @@ public class ProfileManager : MonoBehaviour {
 			break;
 		}
 
-		saveProfileText ();         // 保存
+		initInputFieldText ();  // 表示更新
+		SaveProfileText ();         // 保存
 	}
 
 	// 変更内容を保存する
-	private void saveProfileText(){
+	public void SaveProfileText(){
 	
 		Debug.Log(userDataManager.userName + " " + userDataManager.greet);
 
@@ -62,6 +63,7 @@ public class ProfileManager : MonoBehaviour {
 			KiiManagerMulti.SaveApplicationScope (() => {
 			
 				_loadingPrefab.SetActive (false);
+
 			});
 		});
 	}

@@ -1251,7 +1251,7 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: 1948}
+  m_AnchoredPosition: {x: 0, y: 4383}
   m_SizeDelta: {x: 460, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &323940231
@@ -1796,6 +1796,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 1e3598ce50a0540a999a35c3b30ac4c0, type: 3}
   - {fileID: 21300000, guid: 64b771e8781da45d8834d8006b0df75b, type: 3}
   - {fileID: 21300000, guid: d4f590be4d602477ca616bfc78519741, type: 3}
+  _settingSceneManager: {fileID: 1800183628}
 --- !u!114 &490456783
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5208,7 +5209,7 @@ GameObject:
   - 4: {fileID: 1800183629}
   - 114: {fileID: 1800183628}
   m_Layer: 0
-  m_Name: SettingManager
+  m_Name: SettingSceneManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

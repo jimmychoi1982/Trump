@@ -25,7 +25,9 @@ public class PhotoButton : MonoBehaviour {
 	
 		Transform popuptransform = _popupGameObject.transform;
 		Photoselectpopup pspopup = popuptransform.GetComponent<Photoselectpopup> ();
-		pspopup.changeUserphotoview (_btnImage.sprite);  // User photo view を変更
+
+		int index = int.Parse (gameObject.name);
+		pspopup.changeUserphotoview (_btnImage.sprite, index);  // User photo view を変更
 	}
 
 	// Photo Button の画像変更

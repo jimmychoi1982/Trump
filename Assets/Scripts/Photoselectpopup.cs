@@ -10,6 +10,8 @@ public class Photoselectpopup : MonoBehaviour {
 	[SerializeField] private EditphotoAnimation _editPhotoGameObject;  // Edit photo
 	[SerializeField] private Sprite[] _userpvSprite;
 
+	[SerializeField] private SettingSceneManager _settingSceneManager; //Setting Scene Manager , 通信処理
+
 
 	// Use this for initialization
 	void Start () {
@@ -26,6 +28,8 @@ public class Photoselectpopup : MonoBehaviour {
 			Transform objtransform = obj.transform;
 			PhotoButton pb = objtransform.GetComponent<PhotoButton> ();
 			pb.setSprite(_userpvSprite[i]);                            // Photo button の画像を設定
+
+			obj.name = i.ToString (); // Index番号は名前にする
 		}
 	}
 	
@@ -48,33 +52,15 @@ public class Photoselectpopup : MonoBehaviour {
 			transform.localScale = new Vector3 (0, 0, 0);
 			_editPhotoGameObject.animationControl(false);
 		}
-
-//		if (gameObject.activeInHierarchy) {      // ポップアップの表示/非表示
-////			gameObject.SetActive (false);
-//
-//			transform.localScale = new Vector3 (0, 0, 0);
-//			_editPhotoGameObject.animationControl(false);
-//		} else {
-////			gameObject.SetActive (true);
-//
-//			transform.localScale = new Vector3 (1, 1, 1);
-//			_editPhotoGameObject.animationControl(true);
-//		}
 	}
-
-	// User photo view を変更する
-	public void changeUserphotoview(Sprite sprite){
+			// User photo view を変更する
+	public void changeUserphotoview(Sprite sprite, int index){
 
 		clickPhotoSelectButton ();            // ポップアップを消す
 
 		_userPhotoViewImage.sprite = sprite;  // User photo view の変更
 
-		for (int i = 0; i < _userpvSprite.Length; ++i) {
-
-			if (sprite == _userpvSprite [i]) {
-
-				userDataManager.IconIndex = i;
-			}
-		}
+		userDataManager.IconIndex = index;
+		_settingSceneManager.SaveProfileText (); // 変更したIcon情報がサーバーに更新
 	}
 }
