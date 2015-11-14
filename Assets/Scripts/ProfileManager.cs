@@ -7,6 +7,8 @@ public class ProfileManager : MonoBehaviour {
 	[SerializeField] private InputField _nameInputField;
 	[SerializeField] private InputField _greetInputField;
 
+	[SerializeField] private GameObject _loadingPrefab;
+
 	private enum TEXT_KIND
 	{
 		Name,
@@ -15,11 +17,17 @@ public class ProfileManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+	
+		initInputFieldText ();
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+
+	/// <summary>
+	/// 初始化 Input Field显示的文字
+	/// </summary>
+	private void initInputFieldText(){
+
+		_nameInputField.text = userDataManager.userName;
+		_greetInputField.text = userDataManager.greet;
 	}
 
 	// 変更されたときに userDataManager へ値を渡しておく
@@ -47,10 +55,13 @@ public class ProfileManager : MonoBehaviour {
 	
 		Debug.Log(userDataManager.userName + " " + userDataManager.greet);
 
+		_loadingPrefab.SetActive (true);
+
 		KiiManagerMulti.SaveUserScopeData (() => {
 
 			KiiManagerMulti.SaveApplicationScope (() => {
 			
+				_loadingPrefab.SetActive (false);
 			});
 		});
 	}
