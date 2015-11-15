@@ -41,4 +41,6 @@ MonoBehaviour:
   - closeRoom
   - startGame
   - guestIsReady
+  - updateChatMessageView
+  - updateMessageView
   DisableAutoOpenWizard: 1
